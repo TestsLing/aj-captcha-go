@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	constant "github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/model/vo"
 	"github.com/TestsLing/aj-captcha-go/util"
 	img "github.com/TestsLing/aj-captcha-go/util/image"
@@ -34,7 +35,7 @@ func (c *ClickWordCaptchaService) Get() map[string]any {
 	data["secretKey"] = pointList[0].SecretKey
 	data["token"] = util.GetUuid()
 
-	codeKey := fmt.Sprintf(CodeKeyPrefix, data["token"])
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, data["token"])
 	jsonPoint, err := json.Marshal(pointList)
 	if err != nil {
 		log.Fatalln("point json err:", err)
@@ -46,7 +47,7 @@ func (c *ClickWordCaptchaService) Get() map[string]any {
 
 func (c *ClickWordCaptchaService) Check(token string, pointJson string) error {
 	cache := c.factory.GetCache()
-	codeKey := fmt.Sprintf(CodeKeyPrefix, token)
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, token)
 
 	cachePointInfo := cache.Get(codeKey)
 
@@ -90,7 +91,7 @@ func (c *ClickWordCaptchaService) Verification(token string, pointJson string) e
 	if err != nil {
 		return err
 	}
-	codeKey := fmt.Sprintf(CodeKeyPrefix, token)
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, token)
 	c.factory.GetCache().Delete(codeKey)
 	return nil
 }

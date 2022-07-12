@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/base64"
+	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/model/vo"
 	"github.com/golang/freetype"
 	"image"
@@ -67,7 +68,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 	x := float64(i.Width) - float64(GetEnOrChLength(text))
 	y := float64(i.Height) - (25 / 2) + 7
 
-	font := NewFontUtil(DefaultFont)
+	font := NewFontUtil(constant.DefaultFont)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率
@@ -94,7 +95,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 // SetArtText 为图片设置文字
 func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
 
-	font := NewFontUtil(DefaultFont)
+	font := NewFontUtil(constant.DefaultFont)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率

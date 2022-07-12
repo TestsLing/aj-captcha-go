@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	constant "github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/model/vo"
 	"github.com/TestsLing/aj-captcha-go/util"
 	img "github.com/TestsLing/aj-captcha-go/util/image"
@@ -44,7 +45,7 @@ func (b *BlockPuzzleCaptchaService) Get() map[string]any {
 	data["secretKey"] = b.point.SecretKey
 	data["token"] = util.GetUuid()
 
-	codeKey := fmt.Sprintf(CodeKeyPrefix, data["token"])
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, data["token"])
 	jsonPoint, err := json.Marshal(b.point)
 	if err != nil {
 		log.Fatalln("point json err:", err)
@@ -175,7 +176,7 @@ func (b *BlockPuzzleCaptchaService) generateJigsawPoint(backgroundImage *util.Im
 func (b *BlockPuzzleCaptchaService) Check(token string, pointJson string) error {
 	cache := b.factory.GetCache()
 
-	codeKey := fmt.Sprintf(CodeKeyPrefix, token)
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, token)
 
 	cachePointInfo := cache.Get(codeKey)
 
@@ -214,7 +215,7 @@ func (b *BlockPuzzleCaptchaService) Verification(token string, pointJson string)
 	if err != nil {
 		return err
 	}
-	codeKey := fmt.Sprintf(CodeKeyPrefix, token)
+	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, token)
 	b.factory.GetCache().Delete(codeKey)
 	return nil
 }

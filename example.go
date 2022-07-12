@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	config2 "github.com/TestsLing/aj-captcha-go/config"
+	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/service"
 	"io/ioutil"
 	"log"
@@ -61,9 +62,9 @@ func getCaptcha(writer http.ResponseWriter, request *http.Request) {
 
 func main() {
 
-	factory.RegisterCache(config2.MemCacheKey, service.NewMemCacheService(20))
-	factory.RegisterService(config2.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
-	factory.RegisterService(config2.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
+	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
+	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
+	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 
 	http.HandleFunc("/captcha/get", cors(getCaptcha))
 	http.HandleFunc("/captcha/check", cors(checkCaptcha))

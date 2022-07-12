@@ -30,7 +30,7 @@ func (l *MemCacheService) Exists(key string) bool {
 }
 
 func (l *MemCacheService) GetType() string {
-	return "local"
+	return "mem"
 }
 
 func (l *MemCacheService) Increment(key string, val int) int {

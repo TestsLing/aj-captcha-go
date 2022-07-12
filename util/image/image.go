@@ -1,15 +1,12 @@
 package image
 
 import (
+	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/util"
 	"log"
 	"os"
 	"path/filepath"
 )
-
-const DefaultBackgroundImageDirectory = "/resources/defaultImages/jigsaw/original"
-const DefaultTemplateImageDirectory = "/resources/defaultImages/jigsaw/slidingBlock"
-const DefaultClickBackgroundImageDirectory = "/resources/defaultImages/pic-click"
 
 var backgroundImageArr []string
 var clickBackgroundImageArr []string
@@ -18,9 +15,9 @@ var templateImageArr []string
 func init() {
 	root := filepath.Dir(util.CurrentAbPath())
 
-	backgroundImageRoot := root + DefaultBackgroundImageDirectory
-	templateImageRoot := root + DefaultTemplateImageDirectory
-	clickBackgroundImageRoot := root + DefaultClickBackgroundImageDirectory
+	backgroundImageRoot := root + constant.DefaultBackgroundImageDirectory
+	templateImageRoot := root + constant.DefaultTemplateImageDirectory
+	clickBackgroundImageRoot := root + constant.DefaultClickBackgroundImageDirectory
 
 	err := filepath.Walk(backgroundImageRoot, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {

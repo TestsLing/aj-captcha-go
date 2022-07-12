@@ -1,11 +1,8 @@
 package config
 
-import "image/color"
-
-const (
-	MemCacheKey        = "mem"
-	BlockPuzzleCaptcha = "blockPuzzle"
-	ClickWordCaptcha   = "clickWord"
+import (
+	"github.com/TestsLing/aj-captcha-go/const"
+	"image/color"
 )
 
 // WatermarkConfig 水印设置
@@ -34,7 +31,7 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{
-		CacheType: MemCacheKey,
+		CacheType: constant.MemCacheKey,
 		Watermark: &WatermarkConfig{
 			FontSize: 12,
 			Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},

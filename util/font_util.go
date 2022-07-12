@@ -9,8 +9,6 @@ import (
 	"unicode"
 )
 
-const DefaultFont = "/resources/fonts/WenQuanZhengHei.ttf"
-
 type FontUtil struct {
 	Src string
 }

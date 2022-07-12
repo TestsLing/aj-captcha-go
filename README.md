@@ -89,6 +89,7 @@ package main
 import (
 	config2 "github.com/TestsLing/aj-captcha-go/config"
 	"github.com/TestsLing/aj-captcha-go/service"
+	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/gin-gonic/gin"
 )
 
@@ -107,11 +108,11 @@ var factory = service.NewCaptchaServiceFactory(config)
 func main() {
 
 	// 这里默认是注册了 内存缓存，但是不足以应对生产环境，希望自行注册缓存驱动 实现缓存接口即可替换（CacheType就是注册进去的 key）
-	factory.RegisterCache(config2.MemCacheKey, service.NewMemCacheService(20)) // 这里20指的是缓存阈值
+	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20)) // 这里20指的是缓存阈值
 	
 	// 注册了两种验证码服务 可以自行实现更多的验证
-	factory.RegisterService(config2.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
-	factory.RegisterService(config2.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
+	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
+	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 
 	//Default返回一个默认的路由引擎
 	r := gin.Default()
@@ -127,7 +128,7 @@ func main() {
 		//输出json结果给调用方
 		c.JSON(200, data)
 	})
-	r.Run("0.0.0.0:888") // listen and serve on 0.0.0.0:8080
+	r.Run("0.0.0.0:888") // listen and serve on 0.0.0.0:888
 }
 
 ```
