@@ -69,7 +69,7 @@ func main() {
 	http.HandleFunc("/captcha/get", cors(getCaptcha))
 	http.HandleFunc("/captcha/check", cors(checkCaptcha))
 
-	err := http.ListenAndServe("localhost:8000", nil)
+	err := http.ListenAndServe("localhost:8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
