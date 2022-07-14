@@ -25,7 +25,7 @@ func NewBlockPuzzleCaptchaService(factory *CaptchaServiceFactory) *BlockPuzzleCa
 }
 
 // Get 获取验证码图片信息
-func (b *BlockPuzzleCaptchaService) Get() map[string]any {
+func (b *BlockPuzzleCaptchaService) Get() map[string]interface{} {
 
 	// 初始化背景图片
 	backgroundImage := img.GetBackgroundImage()
@@ -39,7 +39,7 @@ func (b *BlockPuzzleCaptchaService) Get() map[string]any {
 	// 构造前端所需图片
 	b.pictureTemplatesCut(backgroundImage, templateImage)
 
-	data := make(map[string]any)
+	data := make(map[string]interface{})
 	data["originalImageBase64"] = backgroundImage.Base64()
 	data["jigsawImageBase64"] = templateImage.Base64()
 	data["secretKey"] = b.point.SecretKey

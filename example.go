@@ -103,8 +103,8 @@ func checkCaptcha(writer http.ResponseWriter, request *http.Request) {
 	writer.Write(res)
 }
 
-func successRes(data any) map[string]any {
-	ret := make(map[string]any)
+func successRes(data interface{}) map[string]interface{} {
+	ret := make(map[string]interface{})
 	ret["error"] = false
 	ret["repCode"] = "0000"
 	ret["repData"] = data
@@ -130,8 +130,8 @@ func getParams(request *http.Request) (*clientParams, error) {
 	return params, nil
 }
 
-func errorRes(err error) map[string]any {
-	ret := make(map[string]any)
+func errorRes(err error) map[string]interface{} {
+	ret := make(map[string]interface{})
 	ret["error"] = true
 	ret["repCode"] = "0001"
 	ret["repData"] = nil

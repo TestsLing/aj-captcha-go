@@ -39,7 +39,7 @@ func NewConfig() *Config {
 		},
 		ClickWord: &ClickWordConfig{
 			FontSize: 25,
-			FontNum:  5,
+			FontNum:  4,
 		},
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
 		CacheExpireSec: 2 * 60, // 缓存有效时间

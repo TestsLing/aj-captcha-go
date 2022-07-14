@@ -23,13 +23,13 @@ func NewClickWordCaptchaService(factory *CaptchaServiceFactory) *ClickWordCaptch
 	return &ClickWordCaptchaService{factory: factory}
 }
 
-func (c *ClickWordCaptchaService) Get() map[string]any {
+func (c *ClickWordCaptchaService) Get() map[string]interface{} {
 	// 初始化背景图片
 	backgroundImage := img.GetClickBackgroundImage()
 
 	pointList, wordList := c.getImageData(backgroundImage)
 
-	data := make(map[string]any)
+	data := make(map[string]interface{})
 	data["originalImageBase64"] = backgroundImage.Base64()
 	data["wordList"] = wordList
 	data["secretKey"] = pointList[0].SecretKey
