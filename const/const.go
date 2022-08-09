@@ -12,6 +12,8 @@ const (
 
 	// MemCacheKey 内存缓存标识
 	MemCacheKey = "mem"
+	// RedisCacheKey redis缓存标识
+	RedisCacheKey = "redis"
 
 	// DefaultFont 字体文件地址
 	DefaultFont = "/resources/fonts/WenQuanZhengHei.ttf"
