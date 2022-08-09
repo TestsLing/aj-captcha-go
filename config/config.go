@@ -28,6 +28,7 @@ type RedisConfig struct {
 	DBIdleTimeout int
 	DBPassWord    string
 	EnableCluster bool
+	DB            int
 }
 
 type Config struct {
@@ -41,6 +42,7 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{
+		//可以为redis类型缓存RedisCacheKey，也可以为内存MemCacheKey
 		CacheType: constant.MemCacheKey,
 		Watermark: &WatermarkConfig{
 			FontSize: 12,
@@ -54,9 +56,10 @@ func NewConfig() *Config {
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
 		CacheExpireSec: 2 * 60, // 缓存有效时间
 		Redis: &RedisConfig{
-			DBAddress:     []string{"192.168.1.111:6379"},
+			DBAddress:     []string{"127.0.0.1:6379"},
 			DBPassWord:    "",
 			EnableCluster: false,
+			DB:            0,
 		},
 	}
 }

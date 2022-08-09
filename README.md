@@ -27,8 +27,9 @@
 
 - github.com/golang/freetype  作为字体绘制依赖
 - golang.org/x/image  图片操作
+- github.com/go-redis/redis redis库
 
-## Configuration
+## 内存方式存储 Configuration
 
 ```go
 // WatermarkConfig 水印设置
@@ -73,6 +74,60 @@ func NewConfig() *Config {
 }
 ```
 
+
+## Redis方式存储 Configuration
+
+```go
+// WatermarkConfig 水印设置
+type WatermarkConfig struct {
+	FontSize int   // 水印字体大小
+	Color    color.RGBA  // 水印rgba颜色
+	Text     string // 水印文字
+}
+
+type BlockPuzzleConfig struct {
+	Offset int // 校验时 容错偏移量
+}
+
+type ClickWordConfig struct {
+	FontSize int // 点击验证文字的大小
+	FontNum  int // 点击验证的文字的随机数量 
+}
+
+type Config struct {
+	Watermark      *WatermarkConfig
+	ClickWord      *ClickWordConfig
+	BlockPuzzle    *BlockPuzzleConfig
+	CacheType      string // 验证码使用的缓存类型
+	CacheExpireSec int
+}
+
+func NewConfig() *Config {
+	return &Config{
+		CacheType: "redis",  // 注册的缓存类型
+		Watermark: &WatermarkConfig{
+			FontSize: 12,
+			Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+			Text:     "我的水印",
+		},
+		ClickWord: &ClickWordConfig{
+			FontSize: 25,
+			FontNum:  5,
+		},
+		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
+		CacheExpireSec: 2 * 60, // 缓存有效时间
+		//redis配置，可单机，可集群
+        Redis: &RedisConfig{
+            DBAddress:     []string{"127.0.0.1:6379"},
+            DBPassWord:    "",
+            EnableCluster: false,
+            DB: 0,
+        },
+	}
+}
+```
+
+
 ## Installation
 
 ```bash
@@ -109,7 +164,9 @@ func main() {
 
 	// 这里默认是注册了 内存缓存，但是不足以应对生产环境，希望自行注册缓存驱动 实现缓存接口即可替换（CacheType就是注册进去的 key）
 	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20)) // 这里20指的是缓存阈值
-	
+	// 使用redis缓存
+	//factory.RegisterCache(constant.RedisCacheKey, service.NewRedisCacheService())
+
 	// 注册了两种验证码服务 可以自行实现更多的验证
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))

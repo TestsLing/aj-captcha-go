@@ -10,8 +10,7 @@ import (
 )
 
 type RedisUtil struct {
-	Rdb                   redis.UniversalClient
-	CaptchaCacheMaxNumber int
+	Rdb redis.UniversalClient
 }
 
 // InitRedis 初始化redis客户端（可单机， 可集群）
@@ -25,26 +24,26 @@ func (l *RedisUtil) InitRedis() {
 		})
 		_, err := l.Rdb.Ping(ctx).Result()
 		if err != nil {
-			panic(any(err.Error()))
+			panic(err.Error())
 		}
 	} else {
 		l.Rdb = redis.NewClient(&redis.Options{
 			Addr:     config.NewConfig().Redis.DBAddress[0],
 			Password: config.NewConfig().Redis.DBPassWord, // no password set
-			DB:       0,                                   // use default DB
+			DB:       config.NewConfig().Redis.DB,         // use select DB
 			PoolSize: 100,                                 // 连接池大小
 		})
 		_, err := l.Rdb.Ping(ctx).Result()
 		if err != nil {
-			panic(any(err.Error()))
+			panic(err.Error())
 		}
 	}
 }
 
-func NewRedisUtil(captchaCacheMaxNumber int) *RedisUtil {
-	return &RedisUtil{
-		CaptchaCacheMaxNumber: captchaCacheMaxNumber,
-	}
+func NewRedisUtil() *RedisUtil {
+	redisUtil := &RedisUtil{}
+	redisUtil.InitRedis()
+	return redisUtil
 }
 
 func (l *RedisUtil) Exists(key string) bool {

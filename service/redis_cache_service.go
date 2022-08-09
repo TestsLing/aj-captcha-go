@@ -9,9 +9,8 @@ type RedisCacheService struct {
 	Cache *util.RedisUtil
 }
 
-func NewRedisCacheService(captchaCacheMaxNumber int) CaptchaCacheInterface {
-	redisUtils := util.NewRedisUtil(captchaCacheMaxNumber)
-	redisUtils.InitRedis()
+func NewRedisCacheService() CaptchaCacheInterface {
+	redisUtils := util.NewRedisUtil()
 	return &RedisCacheService{Cache: redisUtils}
 }
 
@@ -45,6 +44,5 @@ func (l *RedisCacheService) Increment(key string, val int) int {
 	ret := num + val
 
 	l.Cache.Set(key, strconv.Itoa(ret), 0)
-
 	return ret
 }
