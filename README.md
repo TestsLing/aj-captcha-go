@@ -27,6 +27,7 @@
 
 - github.com/golang/freetype  作为字体绘制依赖
 - golang.org/x/image  图片操作
+- github.com/go-redis/redis redis库
 
 ## Configuration
 
@@ -47,17 +48,38 @@ type ClickWordConfig struct {
 	FontNum  int // 点击验证的文字的随机数量 
 }
 
+//redis配置选项
+type RedisConfig struct {
+    //redis单机或者集群访问地址
+    DBAddress     []string
+    //最大空闲连接数
+    DBMaxIdle     int
+    //最大连接数
+    DBMaxActive   int
+    //redis表示空闲连接保活时间
+    DBIdleTimeout int
+    //redis密码
+    DBPassWord    string
+    //是否使用redis集群
+    EnableCluster bool
+    //单机模式下使用redis的指定库，比如：0，1，2，3等等，默认为0
+    DB            int
+}
+
 type Config struct {
 	Watermark      *WatermarkConfig
 	ClickWord      *ClickWordConfig
 	BlockPuzzle    *BlockPuzzleConfig
 	CacheType      string // 验证码使用的缓存类型
 	CacheExpireSec int
+	Redis          *RedisConfig //redis配置选项
 }
 
 func NewConfig() *Config {
 	return &Config{
-		CacheType: "redis",  // 注册的缓存类型
+		//CacheType：注册的缓存类型，当使用redis时，配置为const.RedisCacheKey（必须配置RedisConfig相关选项才可使用），
+		//当使用内存类型时，配置为const.MemCacheKey
+		CacheType: const.RedisCacheKey,
 		Watermark: &WatermarkConfig{
 			FontSize: 12,
 			Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
@@ -68,10 +90,18 @@ func NewConfig() *Config {
 			FontNum:  5,
 		},
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
-		CacheExpireSec: 2 * 60, // 缓存有效时间
+		CacheExpireSec: 2 * 60, // 缓存有效时间 
+		//redis配置
+		Redis: &RedisConfig{
+			DBAddress:     []string{"127.0.0.1:6379"},
+			DBPassWord:    "",
+			EnableCluster: false,
+			DB: 0,
+		},
 	}
 }
 ```
+
 
 ## Installation
 
@@ -109,7 +139,9 @@ func main() {
 
 	// 这里默认是注册了 内存缓存，但是不足以应对生产环境，希望自行注册缓存驱动 实现缓存接口即可替换（CacheType就是注册进去的 key）
 	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20)) // 这里20指的是缓存阈值
-	
+	// 使用redis缓存
+	//factory.RegisterCache(constant.RedisCacheKey, service.NewRedisCacheService())
+
 	// 注册了两种验证码服务 可以自行实现更多的验证
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))

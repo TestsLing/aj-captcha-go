@@ -48,6 +48,9 @@ func AESDecryptECB(data, key []byte) []byte {
 func PKCS5UnPadding(origData []byte) []byte {
 	// 1. 计算数据的总长度
 	length := len(origData)
+	if length == 0 {
+		return origData
+	}
 	// 2. 根据填充的字节值得到填充的次数
 	number := int(origData[length-1])
 	// 3. 将尾部填充的number个字节去掉
