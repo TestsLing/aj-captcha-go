@@ -5,7 +5,6 @@ import (
 	"github.com/golang/freetype/truetype"
 	"io/ioutil"
 	"log"
-	"path/filepath"
 	"unicode"
 )
 
@@ -19,7 +18,7 @@ func NewFontUtil(src string) *FontUtil {
 
 // GetFont 获取一个字体对象
 func (f *FontUtil) GetFont() *truetype.Font {
-	root := filepath.Dir(CurrentAbPath())
+	root := CurrentAbPath()
 	fontSourceBytes, err := ioutil.ReadFile(root + f.Src)
 	if err != nil {
 		log.Println("读取字体失败:", err)

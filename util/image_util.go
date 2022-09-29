@@ -205,25 +205,53 @@ func ImageToRGBA(img image.Image) *image.RGBA {
 	return dst
 }
 
+// CurrentAbPath 获取项目根目录
 func CurrentAbPath() (dir string) {
+
+	// 如果是go run则返回temp目录 go build 则返回当前目录
+	dir = getCurrentAbPathByExecutable()
+
+	tempDir := getTmpDir()
+
+	// 如果是临时目录执行 从Caller中获取
+	if strings.Contains(dir, tempDir) || tempDir == "." {
+		dir = getCurrentAbPathByCaller()
+	}
+
+	// 执行目录非util目录
+	if !strings.HasSuffix(dir, "util") {
+		dir += "/util"
+	}
+
+	return filepath.Dir(dir)
+}
+
+// 获取当前执行文件绝对路径
+func getCurrentAbPathByExecutable() string {
 	exePath, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	dir, _ = filepath.EvalSymlinks(filepath.Dir(exePath))
-	tempDir := os.Getenv("TEMP")
-	if tempDir == "" {
-		tempDir = os.Getenv("TMP")
+	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
+	return res
+}
+
+// 获取当前执行文件绝对路径（go run）
+func getCurrentAbPathByCaller() string {
+	var abPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		abPath = path.Dir(filename)
 	}
-	tDir, _ := filepath.EvalSymlinks(tempDir)
-	if strings.Contains(dir, tDir) {
-		//return getCurrentAbPathByCaller()
-		var abPath string
-		_, filename, _, ok := runtime.Caller(0)
-		if ok {
-			abPath = path.Dir(filename)
-		}
-		return abPath
+	return abPath
+}
+
+// 获取系统临时目录，兼容go run
+func getTmpDir() string {
+	dir := os.Getenv("TEMP")
+	if dir == "" {
+		dir = os.Getenv("TMP")
 	}
-	return dir
+	res, _ := filepath.EvalSymlinks(dir)
+	return res
 }
