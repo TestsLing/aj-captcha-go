@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/model/vo"
 	"github.com/golang/freetype"
 	"image"
@@ -22,11 +21,13 @@ type ImageUtil struct {
 	Src       string
 	SrcImage  image.Image
 	RgbaImage *image.RGBA
+	FontPath  string
 	Width     int
 	Height    int
 }
 
-func NewImageUtil(src string) *ImageUtil {
+// NewImageUtil src为绝对路径
+func NewImageUtil(src string, fontPath string) *ImageUtil {
 	srcImage := OpenPngImage(src)
 
 	return &ImageUtil{Src: src,
@@ -34,6 +35,7 @@ func NewImageUtil(src string) *ImageUtil {
 		RgbaImage: ImageToRGBA(srcImage),
 		Width:     srcImage.Bounds().Dx(),
 		Height:    srcImage.Bounds().Dy(),
+		FontPath:  fontPath,
 	}
 }
 
@@ -68,7 +70,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 	x := float64(i.Width) - float64(GetEnOrChLength(text))
 	y := float64(i.Height) - (25 / 2) + 7
 
-	font := NewFontUtil(constant.DefaultFont)
+	font := NewFontUtil(i.FontPath)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率
@@ -95,7 +97,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 // SetArtText 为图片设置文字
 func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
 
-	font := NewFontUtil(constant.DefaultFont)
+	font := NewFontUtil(i.FontPath)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率

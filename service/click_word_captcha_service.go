@@ -20,6 +20,7 @@ type ClickWordCaptchaService struct {
 }
 
 func NewClickWordCaptchaService(factory *CaptchaServiceFactory) *ClickWordCaptchaService {
+	img.SetUp(factory.config.ResourcePath)
 	return &ClickWordCaptchaService{factory: factory}
 }
 

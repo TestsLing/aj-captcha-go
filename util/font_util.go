@@ -12,14 +12,14 @@ type FontUtil struct {
 	Src string
 }
 
+// NewFontUtil 字体绝对路径
 func NewFontUtil(src string) *FontUtil {
 	return &FontUtil{Src: src}
 }
 
 // GetFont 获取一个字体对象
 func (f *FontUtil) GetFont() *truetype.Font {
-	root := CurrentAbPath()
-	fontSourceBytes, err := ioutil.ReadFile(root + f.Src)
+	fontSourceBytes, err := ioutil.ReadFile(f.Src)
 	if err != nil {
 		log.Println("读取字体失败:", err)
 	}

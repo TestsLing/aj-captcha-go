@@ -19,6 +19,9 @@ type BlockPuzzleCaptchaService struct {
 }
 
 func NewBlockPuzzleCaptchaService(factory *CaptchaServiceFactory) *BlockPuzzleCaptchaService {
+	// 初始化静态资源
+	img.SetUp(factory.config.ResourcePath)
+
 	return &BlockPuzzleCaptchaService{
 		factory: factory,
 	}

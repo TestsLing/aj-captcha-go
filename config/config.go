@@ -46,6 +46,7 @@ type Config struct {
 	CacheType      string // 验证码使用的缓存类型
 	CacheExpireSec int
 	Redis          *RedisConfig //redis配置
+	ResourcePath   string       // 项目的绝对路径: 图片、字体等
 }
 
 func NewConfig() *Config {
@@ -70,5 +71,6 @@ func NewConfig() *Config {
 			EnableCluster: false,
 			DB:            0,
 		},
+		ResourcePath: "/mnt/f/workspace/aj-captcha-go",
 	}
 }

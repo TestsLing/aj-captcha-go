@@ -12,8 +12,11 @@ var backgroundImageArr []string
 var clickBackgroundImageArr []string
 var templateImageArr []string
 
-func init() {
-	root := util.CurrentAbPath()
+var resourceAbsPath string
+
+func SetUp(resourcePath string) {
+	resourceAbsPath = resourcePath
+	root := resourcePath
 
 	backgroundImageRoot := root + constant.DefaultBackgroundImageDirectory
 	templateImageRoot := root + constant.DefaultTemplateImageDirectory
@@ -54,7 +57,7 @@ func GetBackgroundImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(backgroundImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(backgroundImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }
 
 func GetTemplateImage() *util.ImageUtil {
@@ -62,7 +65,7 @@ func GetTemplateImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(templateImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(templateImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }
 
 func GetClickBackgroundImage() *util.ImageUtil {
@@ -70,5 +73,5 @@ func GetClickBackgroundImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(clickBackgroundImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(clickBackgroundImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }
