@@ -28,7 +28,7 @@ func NewBlockPuzzleCaptchaService(factory *CaptchaServiceFactory) *BlockPuzzleCa
 }
 
 // Get 获取验证码图片信息
-func (b *BlockPuzzleCaptchaService) Get() map[string]interface{} {
+func (b *BlockPuzzleCaptchaService) Get() (map[string]interface{}, error) {
 
 	// 初始化背景图片
 	backgroundImage := img.GetBackgroundImage()
@@ -42,21 +42,29 @@ func (b *BlockPuzzleCaptchaService) Get() map[string]interface{} {
 	// 构造前端所需图片
 	b.pictureTemplatesCut(backgroundImage, templateImage)
 
+	originalImageBase64, err := backgroundImage.Base64()
+	jigsawImageBase64, err := templateImage.Base64()
+
+	if err != nil {
+		return nil, err
+	}
+
 	data := make(map[string]interface{})
-	data["originalImageBase64"] = backgroundImage.Base64()
-	data["jigsawImageBase64"] = templateImage.Base64()
+	data["originalImageBase64"] = originalImageBase64
+	data["jigsawImageBase64"] = jigsawImageBase64
 	data["secretKey"] = b.point.SecretKey
 	data["token"] = util.GetUuid()
 
 	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, data["token"])
 	jsonPoint, err := json.Marshal(b.point)
 	if err != nil {
-		log.Fatalln("point json err:", err)
+		log.Printf("point json Marshal err: %v", err)
+		return nil, err
 	}
 
 	b.factory.GetCache().Set(codeKey, string(jsonPoint), b.factory.config.CacheExpireSec)
 
-	return data
+	return data, nil
 }
 
 func (b *BlockPuzzleCaptchaService) pictureTemplatesCut(backgroundImage *util.ImageUtil, templateImage *util.ImageUtil) {

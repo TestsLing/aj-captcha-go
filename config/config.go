@@ -71,6 +71,6 @@ func NewConfig() *Config {
 			EnableCluster: false,
 			DB:            0,
 		},
-		ResourcePath: "/mnt/f/workspace/aj-captcha-go",
+		ResourcePath: "./",
 	}
 }

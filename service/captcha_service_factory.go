@@ -31,7 +31,7 @@ func (c *CaptchaServiceFactory) GetCache() CaptchaCacheInterface {
 	c.CacheLock.RLock()
 	defer c.CacheLock.RUnlock()
 	if _, ok := c.CacheMap[key]; !ok {
-		log.Fatalf("未注册%s类型的Cache", key)
+		log.Printf("未注册%s类型的Cache", key)
 	}
 	return c.CacheMap[key]
 }
@@ -52,7 +52,7 @@ func (c *CaptchaServiceFactory) GetService(key string) CaptchaInterface {
 	c.ServiceLock.RLock()
 	defer c.ServiceLock.RUnlock()
 	if _, ok := c.ServiceMap[key]; !ok {
-		log.Fatalf("未注册%s类型的Service", key)
+		log.Printf("未注册%s类型的Service", key)
 	}
 	return c.ServiceMap[key]
 }

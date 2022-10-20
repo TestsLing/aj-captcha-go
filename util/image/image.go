@@ -47,7 +47,7 @@ func SetUp(resourcePath string) {
 	})
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("初始化resource目录失败，请检查该目录是否存在 err: %v", err)
 	}
 
 }

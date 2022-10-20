@@ -95,7 +95,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 }
 
 // SetArtText 为图片设置文字
-func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
+func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) error {
 
 	font := NewFontUtil(i.FontPath)
 
@@ -117,8 +117,11 @@ func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
 	// 根据 Pt 的坐标值绘制给定的文本内容
 	_, err := fc.DrawString(text, pt)
 	if err != nil {
-		log.Fatalln("构造水印失败:", err)
+		log.Printf("构造水印失败 err: %v", err)
+		return err
 	}
+
+	return nil
 }
 
 // SetPixel 为像素设置颜色
@@ -127,21 +130,22 @@ func (i *ImageUtil) SetPixel(rgba color.RGBA, x, y int) {
 }
 
 // Base64 为像素设置颜色
-func (i *ImageUtil) Base64() string {
+func (i *ImageUtil) Base64() (string, error) {
 	// 开辟一个新的空buff
 	var buf bytes.Buffer
 	// img写入到buff
 	err := png.Encode(&buf, i.RgbaImage)
 
 	if err != nil {
-		log.Fatalln("img写入buf失败")
+		log.Printf("img写入buf失败 err: %v", err)
+		return "", err
 	}
 
 	//开辟存储空间
 	dist := make([]byte, buf.Cap()+buf.Len())
 	// buff转成base64
 	base64.StdEncoding.Encode(dist, buf.Bytes())
-	return string(dist)
+	return string(dist), nil
 }
 
 // VagueImage 模糊区域

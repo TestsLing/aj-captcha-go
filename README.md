@@ -158,7 +158,7 @@ func main() {
 	})
 	r.GET("/captcha/get", func(c *gin.Context) {
 		// 根据参数类型获取不同服务即可
-		data := factory.GetService(constant.BlockPuzzleCaptcha).Get()
+		data, _ := factory.GetService(constant.BlockPuzzleCaptcha).Get()
 		//输出json结果给调用方
 		c.JSON(200, data)
 	})
