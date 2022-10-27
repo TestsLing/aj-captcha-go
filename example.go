@@ -53,7 +53,7 @@ func getCaptcha(writer http.ResponseWriter, request *http.Request) {
 
 	ser := factory.GetService(params.CaptchaType)
 
-	data := ser.Get()
+	data, err := ser.Get()
 
 	res, _ := json.Marshal(successRes(data))
 	request.Body.Close()

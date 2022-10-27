@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/model/vo"
 	"github.com/golang/freetype"
 	"image"
@@ -22,11 +21,13 @@ type ImageUtil struct {
 	Src       string
 	SrcImage  image.Image
 	RgbaImage *image.RGBA
+	FontPath  string
 	Width     int
 	Height    int
 }
 
-func NewImageUtil(src string) *ImageUtil {
+// NewImageUtil src为绝对路径
+func NewImageUtil(src string, fontPath string) *ImageUtil {
 	srcImage := OpenPngImage(src)
 
 	return &ImageUtil{Src: src,
@@ -34,6 +35,7 @@ func NewImageUtil(src string) *ImageUtil {
 		RgbaImage: ImageToRGBA(srcImage),
 		Width:     srcImage.Bounds().Dx(),
 		Height:    srcImage.Bounds().Dy(),
+		FontPath:  fontPath,
 	}
 }
 
@@ -68,7 +70,7 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 	x := float64(i.Width) - float64(GetEnOrChLength(text))
 	y := float64(i.Height) - (25 / 2) + 7
 
-	font := NewFontUtil(constant.DefaultFont)
+	font := NewFontUtil(i.FontPath)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率
@@ -93,9 +95,9 @@ func (i *ImageUtil) SetText(text string, fontsize int, color color.RGBA) {
 }
 
 // SetArtText 为图片设置文字
-func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
+func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) error {
 
-	font := NewFontUtil(constant.DefaultFont)
+	font := NewFontUtil(i.FontPath)
 
 	fc := freetype.NewContext()
 	// 设置屏幕每英寸的分辨率
@@ -115,8 +117,11 @@ func (i *ImageUtil) SetArtText(text string, fontsize int, point vo.PointVO) {
 	// 根据 Pt 的坐标值绘制给定的文本内容
 	_, err := fc.DrawString(text, pt)
 	if err != nil {
-		log.Fatalln("构造水印失败:", err)
+		log.Printf("构造水印失败 err: %v", err)
+		return err
 	}
+
+	return nil
 }
 
 // SetPixel 为像素设置颜色
@@ -125,21 +130,22 @@ func (i *ImageUtil) SetPixel(rgba color.RGBA, x, y int) {
 }
 
 // Base64 为像素设置颜色
-func (i *ImageUtil) Base64() string {
+func (i *ImageUtil) Base64() (string, error) {
 	// 开辟一个新的空buff
 	var buf bytes.Buffer
 	// img写入到buff
 	err := png.Encode(&buf, i.RgbaImage)
 
 	if err != nil {
-		log.Fatalln("img写入buf失败")
+		log.Printf("img写入buf失败 err: %v", err)
+		return "", err
 	}
 
 	//开辟存储空间
 	dist := make([]byte, buf.Cap()+buf.Len())
 	// buff转成base64
 	base64.StdEncoding.Encode(dist, buf.Bytes())
-	return string(dist)
+	return string(dist), nil
 }
 
 // VagueImage 模糊区域
@@ -205,25 +211,53 @@ func ImageToRGBA(img image.Image) *image.RGBA {
 	return dst
 }
 
+// CurrentAbPath 获取项目根目录
 func CurrentAbPath() (dir string) {
+
+	// 如果是go run则返回temp目录 go build 则返回当前目录
+	dir = getCurrentAbPathByExecutable()
+
+	tempDir := getTmpDir()
+
+	// 如果是临时目录执行 从Caller中获取
+	if strings.Contains(dir, tempDir) || tempDir == "." {
+		dir = getCurrentAbPathByCaller()
+	}
+
+	// 执行目录非util目录
+	if !strings.HasSuffix(dir, "util") {
+		dir += "/util"
+	}
+
+	return filepath.Dir(dir)
+}
+
+// 获取当前执行文件绝对路径
+func getCurrentAbPathByExecutable() string {
 	exePath, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	dir, _ = filepath.EvalSymlinks(filepath.Dir(exePath))
-	tempDir := os.Getenv("TEMP")
-	if tempDir == "" {
-		tempDir = os.Getenv("TMP")
+	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
+	return res
+}
+
+// 获取当前执行文件绝对路径（go run）
+func getCurrentAbPathByCaller() string {
+	var abPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		abPath = path.Dir(filename)
 	}
-	tDir, _ := filepath.EvalSymlinks(tempDir)
-	if strings.Contains(dir, tDir) {
-		//return getCurrentAbPathByCaller()
-		var abPath string
-		_, filename, _, ok := runtime.Caller(0)
-		if ok {
-			abPath = path.Dir(filename)
-		}
-		return abPath
+	return abPath
+}
+
+// 获取系统临时目录，兼容go run
+func getTmpDir() string {
+	dir := os.Getenv("TEMP")
+	if dir == "" {
+		dir = os.Getenv("TMP")
 	}
-	return dir
+	res, _ := filepath.EvalSymlinks(dir)
+	return res
 }

@@ -20,17 +20,27 @@ type ClickWordCaptchaService struct {
 }
 
 func NewClickWordCaptchaService(factory *CaptchaServiceFactory) *ClickWordCaptchaService {
+	img.SetUp(factory.config.ResourcePath)
 	return &ClickWordCaptchaService{factory: factory}
 }
 
-func (c *ClickWordCaptchaService) Get() map[string]interface{} {
+func (c *ClickWordCaptchaService) Get() (map[string]interface{}, error) {
 	// 初始化背景图片
 	backgroundImage := img.GetClickBackgroundImage()
 
-	pointList, wordList := c.getImageData(backgroundImage)
+	pointList, wordList, err := c.getImageData(backgroundImage)
+	if err != nil {
+		return nil, err
+	}
+
+	originalImageBase64, err := backgroundImage.Base64()
+
+	if err != nil {
+		return nil, err
+	}
 
 	data := make(map[string]interface{})
-	data["originalImageBase64"] = backgroundImage.Base64()
+	data["originalImageBase64"] = originalImageBase64
 	data["wordList"] = wordList
 	data["secretKey"] = pointList[0].SecretKey
 	data["token"] = util.GetUuid()
@@ -38,11 +48,12 @@ func (c *ClickWordCaptchaService) Get() map[string]interface{} {
 	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, data["token"])
 	jsonPoint, err := json.Marshal(pointList)
 	if err != nil {
-		log.Fatalln("point json err:", err)
+		log.Printf("point json Marshal err: %v", err)
+		return nil, err
 	}
 
 	c.factory.GetCache().Set(codeKey, string(jsonPoint), c.factory.config.CacheExpireSec)
-	return data
+	return data, nil
 }
 
 func (c *ClickWordCaptchaService) Check(token string, pointJson string) error {
@@ -96,7 +107,7 @@ func (c *ClickWordCaptchaService) Verification(token string, pointJson string) e
 	return nil
 }
 
-func (c *ClickWordCaptchaService) getImageData(image *util.ImageUtil) ([]vo.PointVO, []string) {
+func (c *ClickWordCaptchaService) getImageData(image *util.ImageUtil) ([]vo.PointVO, []string, error) {
 	wordCount := c.factory.config.ClickWord.FontNum
 
 	// 某个字不参与校验
@@ -115,14 +126,19 @@ func (c *ClickWordCaptchaService) getImageData(image *util.ImageUtil) ([]vo.Poin
 		point := c.randomWordPoint(image.Width, image.Height, i, wordCount)
 		point.SetSecretKey(key)
 		// 随机设置文字 TODO 角度未设置
-		image.SetArtText(s, c.factory.config.ClickWord.FontSize, point)
+		err := image.SetArtText(s, c.factory.config.ClickWord.FontSize, point)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
 		if (num - 1) != i {
 			pointList = append(pointList, point)
 			wordList = append(wordList, s)
 		}
 		i++
 	}
-	return pointList, wordList
+	return pointList, wordList, nil
 }
 
 // getRandomWords 获取随机文件

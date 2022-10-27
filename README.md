@@ -17,7 +17,7 @@
 - 支持滑动拼团验证
 - 支持文字点选验证
 
-### 预览效果
+### Preview
 
 ![block](https://gitee.com/anji-plus/captcha/raw/master/images/%E6%BB%91%E5%8A%A8%E6%8B%BC%E5%9B%BE.gif)
 
@@ -73,6 +73,7 @@ type Config struct {
 	CacheType      string // 验证码使用的缓存类型
 	CacheExpireSec int
 	Redis          *RedisConfig //redis配置选项
+    ResourcePath   string       // 项目的绝对路径: 图片、字体等
 }
 
 func NewConfig() *Config {
@@ -98,7 +99,8 @@ func NewConfig() *Config {
 			EnableCluster: false,
 			DB: 0,
 		},
-	}
+		ResourcePath: "/mnt/f/workspace/aj-captcha-go",
+}
 }
 ```
 
@@ -156,7 +158,7 @@ func main() {
 	})
 	r.GET("/captcha/get", func(c *gin.Context) {
 		// 根据参数类型获取不同服务即可
-		data := factory.GetService(constant.BlockPuzzleCaptcha).Get()
+		data, _ := factory.GetService(constant.BlockPuzzleCaptcha).Get()
 		//输出json结果给调用方
 		c.JSON(200, data)
 	})
@@ -169,19 +171,18 @@ func main() {
 
 直接运行 `example` 即可
 
+## Deploy
+
+在进行项目部署时，需要将 **resource** 目录的资源进行复制到打包文件的同级目录，然后在配置文件中指定 **ResourcePath** 为项目根路径
+
 ## Changelog
 
+- 2022.9.29  将静态资源配置暴露
 - 2022.7.12  初次提交Go实现
-
-## FAQ
-
-## Support
 
 ### Contact
 
 - 微信: hack_mess
-
-## Authors and acknowledgment
 
 ## License
 
