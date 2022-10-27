@@ -18,6 +18,7 @@ func SetUp(resourcePath string) {
 	resourceAbsPath = resourcePath
 	root := resourcePath
 
+	//root := "/Users/skyline/go/src/aj-captcha-go"
 	backgroundImageRoot := root + constant.DefaultBackgroundImageDirectory
 	templateImageRoot := root + constant.DefaultTemplateImageDirectory
 	clickBackgroundImageRoot := root + constant.DefaultClickBackgroundImageDirectory
