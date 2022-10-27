@@ -13,7 +13,10 @@ var clickBackgroundImageArr []string
 var templateImageArr []string
 
 func init() {
-	root := filepath.Dir(util.CurrentAbPath())
+	//root := filepath.Dir(util.CurrentAbPath())
+
+	//root := util.CurrentAbPath()
+	root := "/Users/skyline/go/src/aj-captcha-go"
 
 	backgroundImageRoot := root + constant.DefaultBackgroundImageDirectory
 	templateImageRoot := root + constant.DefaultTemplateImageDirectory
