@@ -12,12 +12,13 @@ var backgroundImageArr []string
 var clickBackgroundImageArr []string
 var templateImageArr []string
 
-func init() {
-	//root := filepath.Dir(util.CurrentAbPath())
+var resourceAbsPath string
 
-	//root := util.CurrentAbPath()
-	root := "/Users/skyline/go/src/aj-captcha-go"
+func SetUp(resourcePath string) {
+	resourceAbsPath = resourcePath
+	root := resourcePath
 
+	//root := "/Users/skyline/go/src/aj-captcha-go"
 	backgroundImageRoot := root + constant.DefaultBackgroundImageDirectory
 	templateImageRoot := root + constant.DefaultTemplateImageDirectory
 	clickBackgroundImageRoot := root + constant.DefaultClickBackgroundImageDirectory
@@ -47,7 +48,7 @@ func init() {
 	})
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("初始化resource目录失败，请检查该目录是否存在 err: %v", err)
 	}
 
 }
@@ -57,7 +58,7 @@ func GetBackgroundImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(backgroundImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(backgroundImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }
 
 func GetTemplateImage() *util.ImageUtil {
@@ -65,7 +66,7 @@ func GetTemplateImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(templateImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(templateImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }
 
 func GetClickBackgroundImage() *util.ImageUtil {
@@ -73,5 +74,5 @@ func GetClickBackgroundImage() *util.ImageUtil {
 	if max <= 0 {
 		max = 1
 	}
-	return util.NewImageUtil(clickBackgroundImageArr[util.RandomInt(0, max)])
+	return util.NewImageUtil(clickBackgroundImageArr[util.RandomInt(0, max)], resourceAbsPath+constant.DefaultFont)
 }

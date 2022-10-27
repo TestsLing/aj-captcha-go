@@ -13,8 +13,8 @@ type RedisUtil struct {
 	Rdb redis.UniversalClient
 }
 
-// InitRedis 初始化redis客户端（可单机， 可集群）
-func (l *RedisUtil) InitRedis() {
+// InitDftRedis 初始化默认redis客户端（可单机， 可集群）
+func (l *RedisUtil) InitDftRedis() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if config.NewConfig().Redis.EnableCluster {
@@ -40,9 +40,42 @@ func (l *RedisUtil) InitRedis() {
 	}
 }
 
-func NewRedisUtil() *RedisUtil {
+// InitConfigRedis 初始化自定义配置redis客户端（可单机， 可集群）
+func (l *RedisUtil) InitConfigRedis(rdsAddr []string, dbPassword string, enableCluster bool, db int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if enableCluster {
+		l.Rdb = redis.NewClusterClient(&redis.ClusterOptions{
+			Addrs:    rdsAddr,
+			PoolSize: 50,
+		})
+		_, err := l.Rdb.Ping(ctx).Result()
+		if err != nil {
+			panic(err.Error())
+		}
+	} else {
+		l.Rdb = redis.NewClient(&redis.Options{
+			Addr:     rdsAddr[0],
+			Password: dbPassword, // no password set
+			DB:       db,         // use select DB
+			PoolSize: 100,        // 连接池大小
+		})
+		_, err := l.Rdb.Ping(ctx).Result()
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+}
+
+func NewDftRedisUtil() *RedisUtil {
 	redisUtil := &RedisUtil{}
-	redisUtil.InitRedis()
+	redisUtil.InitDftRedis()
+	return redisUtil
+}
+
+func NewConfigRedisUtil(rdsAddr []string, dbPassword string, enableCluster bool, db int) *RedisUtil {
+	redisUtil := &RedisUtil{}
+	redisUtil.InitConfigRedis(rdsAddr, dbPassword, enableCluster, db)
 	return redisUtil
 }
 

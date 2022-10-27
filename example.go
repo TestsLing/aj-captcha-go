@@ -61,8 +61,10 @@ func getCaptcha(writer http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
-
-	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
+	//注册内存缓存
+	//factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
+	//注册redis缓存
+	factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"192.168.1.111:6379"}, "", false, 1))
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 

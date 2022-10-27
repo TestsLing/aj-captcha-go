@@ -7,46 +7,50 @@ import (
 
 // WatermarkConfig 水印设置
 type WatermarkConfig struct {
-	FontSize int
-	Color    color.RGBA
-	Text     string
+	FontSize int        `yaml:"fontSize"`
+	Color    color.RGBA `yaml:"color"`
+	Text     string     `yaml:"text"`
 }
 
 type BlockPuzzleConfig struct {
-	Offset int // 校验时 容错偏移量
+	// 校验时 容错偏移量
+	Offset int `yaml:"offset"`
 }
 
 type ClickWordConfig struct {
-	FontSize int
-	FontNum  int
+	FontSize int `yaml:"fontSize"`
+	FontNum  int `yaml:"fontNum"`
 }
 
 // RedisConfig redis配置选项
 type RedisConfig struct {
 	//redis单机或者集群访问地址
-	DBAddress []string
+	DBAddress []string `yaml:"dbAddress"`
 	//最大空闲连接数
-	DBMaxIdle int
+	DBMaxIdle int `yaml:"dbMaxIdle"`
 	//最大连接数
-	DBMaxActive int
+	DBMaxActive int `yaml:"dbMaxActive"`
 	//redis表示空闲连接保活时间
-	DBIdleTimeout int
+	DBIdleTimeout int `yaml:"DBIdleTimeout"`
 	//redis密码
-	DBPassWord string
+	DBPassWord string `yaml:"dbPassWord"`
 	//是否使用redis集群
-	EnableCluster bool
+	EnableCluster bool `yaml:"enableCluster"`
 	//单机模式下使用redis的指定库，比如：0，1，2，3等等，默认为0
-	DB int
+	DB int `yaml:"db"`
 }
 
 type Config struct {
-	Watermark      *WatermarkConfig
-	ClickWord      *ClickWordConfig
-	BlockPuzzle    *BlockPuzzleConfig
-	CacheType      string // 验证码使用的缓存类型
-	CacheExpireSec int
-	Redis          *RedisConfig //redis配置
-	ResourcePath   string       // 项目的绝对路径: 图片、字体等
+	Watermark   *WatermarkConfig   `yaml:"watermark"`
+	ClickWord   *ClickWordConfig   `yaml:"clickWord"`
+	BlockPuzzle *BlockPuzzleConfig `yaml:"blockPuzzle"`
+	// 验证码使用的缓存类型
+	CacheType      string `yaml:"cacheType"`
+	CacheExpireSec int    `yaml:"cacheExpireSec"`
+	//redis配置
+	Redis *RedisConfig `yaml:"redis"`
+	// 项目的绝对路径: 图片、字体等
+	ResourcePath string `yaml:"resourcePath"`
 }
 
 func NewConfig() *Config {
