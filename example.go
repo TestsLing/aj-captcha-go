@@ -63,8 +63,11 @@ func getCaptcha(writer http.ResponseWriter, request *http.Request) {
 func main() {
 	//注册内存缓存
 	//factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
-	//注册redis缓存
-	factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"192.168.1.111:6379"}, "", false, 1))
+	//注册使用默认redis数据库
+	factory.RegisterCache(constant.RedisCacheKey, service.NewDftRedisCacheService())
+	//注册自定义配置redis数据库
+	factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"127.0.0.1:6379"},
+		"", false, 0))
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 

@@ -72,8 +72,7 @@ type Config struct {
 	BlockPuzzle    *BlockPuzzleConfig
 	CacheType      string // 验证码使用的缓存类型
 	CacheExpireSec int
-	Redis          *RedisConfig //redis配置选项
-    ResourcePath   string       // 项目的绝对路径: 图片、字体等
+	ResourcePath   string // 项目的绝对路径: 图片、字体等
 }
 
 func NewConfig() *Config {
@@ -91,14 +90,7 @@ func NewConfig() *Config {
 			FontNum:  5,
 		},
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
-		CacheExpireSec: 2 * 60, // 缓存有效时间 
-		//redis配置
-		Redis: &RedisConfig{
-			DBAddress:     []string{"127.0.0.1:6379"},
-			DBPassWord:    "",
-			EnableCluster: false,
-			DB: 0,
-		},
+		CacheExpireSec: 2 * 60, // 缓存有效时间
 		ResourcePath: "/mnt/f/workspace/aj-captcha-go",
 }
 }
@@ -138,12 +130,15 @@ var config = config2.NewConfig()
 var factory = service.NewCaptchaServiceFactory(config)
 
 func main() {
-
 	// 这里默认是注册了 内存缓存，但是不足以应对生产环境，希望自行注册缓存驱动 实现缓存接口即可替换（CacheType就是注册进去的 key）
 	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20)) // 这里20指的是缓存阈值
-	// 使用redis缓存
-	//factory.RegisterCache(constant.RedisCacheKey, service.NewRedisCacheService())
 
+	//注册使用默认redis数据库
+	//factory.RegisterCache(constant.RedisCacheKey, service.NewDftRedisCacheService())
+	//注册自定义配置redis数据库
+	//factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"127.0.0.1:6379"},
+	//	"", false, 0))
+	
 	// 注册了两种验证码服务 可以自行实现更多的验证
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
