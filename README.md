@@ -92,8 +92,10 @@ func NewConfig() *Config {
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
 		CacheExpireSec: 2 * 60, // 缓存有效时间
 		ResourcePath: "/mnt/f/workspace/aj-captcha-go",
+    }
 }
-}
+
+
 ```
 
 
@@ -124,8 +126,31 @@ type clientParams struct {
 	CaptchaType string `json:"captchaType"`
 }
 
+// **********************默认配置***************************************************
 // 默认配置，可以根据项目自行配置，将其他类型配置序列化上去
 var config = config2.NewConfig()
+
+// *********************自定义配置**************************************************
+// 水印配置（参数可从业务系统自定义）
+var watermarkConfig = &config2.WatermarkConfig{
+	FontSize: 12,
+	Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+	Text:     "我的水印",
+}
+
+// 点击文字配置（参数可从业务系统自定义）
+var clickWordConfig = &config2.ClickWordConfig{
+	FontSize: 25,
+	FontNum:  4,
+}
+
+// 滑动模块配置（参数可从业务系统自定义）
+var blockPuzzleConfig = &config2.BlockPuzzleConfig{Offset: 10}
+
+// 行为校验配置模块（具体参数可从业务系统配置文件自定义）
+var config = config2.BuildConfig(constant.MemCacheKey, constant.DefaultResourceRoot, watermarkConfig,
+	clickWordConfig, blockPuzzleConfig, 2*60)
+
 // 服务工厂，主要用户注册 获取 缓存和验证服务
 var factory = service.NewCaptchaServiceFactory(config)
 
@@ -137,7 +162,7 @@ func main() {
 	//factory.RegisterCache(constant.RedisCacheKey, service.NewDftRedisCacheService())
 	//注册自定义配置redis数据库
 	//factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"127.0.0.1:6379"},
-	//	"", false, 0))
+	//,"", "", false, 0))
 	
 	// 注册了两种验证码服务 可以自行实现更多的验证
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))

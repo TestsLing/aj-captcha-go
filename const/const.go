@@ -17,6 +17,10 @@ const (
 
 	// DefaultFont 字体文件地址
 	DefaultFont = "/resources/fonts/WenQuanZhengHei.ttf"
+	// DefaultResourceRoot 默认根目录
+	DefaultResourceRoot = "./"
+	// DefaultText 默认水印显示文字
+	DefaultText = "我的水印"
 )
 
 const (
