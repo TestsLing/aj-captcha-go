@@ -1,8 +1,10 @@
 package config
 
 import (
+	"errors"
 	"github.com/TestsLing/aj-captcha-go/const"
 	"image/color"
+	"strings"
 )
 
 // WatermarkConfig 水印设置
@@ -47,8 +49,6 @@ type Config struct {
 	// 验证码使用的缓存类型
 	CacheType      string `yaml:"cacheType"`
 	CacheExpireSec int    `yaml:"cacheExpireSec"`
-	//redis配置
-	Redis *RedisConfig `yaml:"redis"`
 	// 项目的绝对路径: 图片、字体等
 	ResourcePath string `yaml:"resourcePath"`
 }
@@ -68,13 +68,51 @@ func NewConfig() *Config {
 		},
 		BlockPuzzle:    &BlockPuzzleConfig{Offset: 10},
 		CacheExpireSec: 2 * 60, // 缓存有效时间
-		//redis配置选项
-		Redis: &RedisConfig{
-			DBAddress:     []string{"127.0.0.1:6379"},
-			DBPassWord:    "",
-			EnableCluster: false,
-			DB:            0,
-		},
-		ResourcePath: "./",
+		ResourcePath:   "./",
+	}
+}
+
+// BuildConfig 生成config配置
+func BuildConfig(cacheType, resourcePath string, waterConfig *WatermarkConfig, clickWordConfig *ClickWordConfig,
+	puzzleConfig *BlockPuzzleConfig, cacheExpireSec int) *Config {
+	if len(resourcePath) == 0 {
+		resourcePath = constant.DefaultResourceRoot
+	}
+	if len(cacheType) == 0 {
+		cacheType = constant.MemCacheKey
+	} else if strings.Compare(cacheType, constant.MemCacheKey) != 0 &&
+		strings.Compare(cacheType, constant.RedisCacheKey) != 0 {
+		panic(errors.New("cache type not support"))
+		return nil
+	}
+	if cacheExpireSec == 0 {
+		cacheExpireSec = 2 * 60
+	}
+	if nil == waterConfig {
+		waterConfig = &WatermarkConfig{
+			FontSize: 12,
+			Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+			Text:     constant.DefaultText,
+		}
+	}
+	if nil == clickWordConfig {
+		clickWordConfig = &ClickWordConfig{
+			FontSize: 25,
+			FontNum:  4,
+		}
+	}
+	if nil == puzzleConfig {
+		puzzleConfig = &BlockPuzzleConfig{Offset: 10}
+	}
+
+	return &Config{
+		//可以为redis类型缓存RedisCacheKey，也可以为内存MemCacheKey
+		CacheType:   cacheType,
+		Watermark:   waterConfig,
+		ClickWord:   clickWordConfig,
+		BlockPuzzle: puzzleConfig,
+		// 缓存有效时间
+		CacheExpireSec: cacheExpireSec,
+		ResourcePath:   resourcePath,
 	}
 }

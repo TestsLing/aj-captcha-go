@@ -3,7 +3,6 @@ package util
 import (
 	"context"
 	"fmt"
-	"github.com/TestsLing/aj-captcha-go/config"
 	"github.com/go-redis/redis/v8"
 	"strconv"
 	"time"
@@ -13,41 +12,16 @@ type RedisUtil struct {
 	Rdb redis.UniversalClient
 }
 
-// InitDftRedis 初始化默认redis客户端（可单机， 可集群）
-func (l *RedisUtil) InitDftRedis() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if config.NewConfig().Redis.EnableCluster {
-		l.Rdb = redis.NewClusterClient(&redis.ClusterOptions{
-			Addrs:    config.NewConfig().Redis.DBAddress,
-			PoolSize: 50,
-		})
-		_, err := l.Rdb.Ping(ctx).Result()
-		if err != nil {
-			panic(err.Error())
-		}
-	} else {
-		l.Rdb = redis.NewClient(&redis.Options{
-			Addr:     config.NewConfig().Redis.DBAddress[0],
-			Password: config.NewConfig().Redis.DBPassWord, // no password set
-			DB:       config.NewConfig().Redis.DB,         // use select DB
-			PoolSize: 100,                                 // 连接池大小
-		})
-		_, err := l.Rdb.Ping(ctx).Result()
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-}
-
 // InitConfigRedis 初始化自定义配置redis客户端（可单机， 可集群）
-func (l *RedisUtil) InitConfigRedis(rdsAddr []string, dbPassword string, enableCluster bool, db int) {
+func (l *RedisUtil) InitConfigRedis(rdsAddr []string, dbUserName, dbPassword string, enableCluster bool, db int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if enableCluster {
 		l.Rdb = redis.NewClusterClient(&redis.ClusterOptions{
 			Addrs:    rdsAddr,
-			PoolSize: 50,
+			Username: dbUserName,
+			Password: dbPassword,
+			PoolSize: 100,
 		})
 		_, err := l.Rdb.Ping(ctx).Result()
 		if err != nil {
@@ -56,6 +30,7 @@ func (l *RedisUtil) InitConfigRedis(rdsAddr []string, dbPassword string, enableC
 	} else {
 		l.Rdb = redis.NewClient(&redis.Options{
 			Addr:     rdsAddr[0],
+			Username: dbUserName,
 			Password: dbPassword, // no password set
 			DB:       db,         // use select DB
 			PoolSize: 100,        // 连接池大小
@@ -67,15 +42,9 @@ func (l *RedisUtil) InitConfigRedis(rdsAddr []string, dbPassword string, enableC
 	}
 }
 
-func NewDftRedisUtil() *RedisUtil {
+func NewConfigRedisUtil(rdsAddr []string, dbUserName, dbPassword string, enableCluster bool, db int) *RedisUtil {
 	redisUtil := &RedisUtil{}
-	redisUtil.InitDftRedis()
-	return redisUtil
-}
-
-func NewConfigRedisUtil(rdsAddr []string, dbPassword string, enableCluster bool, db int) *RedisUtil {
-	redisUtil := &RedisUtil{}
-	redisUtil.InitConfigRedis(rdsAddr, dbPassword, enableCluster, db)
+	redisUtil.InitConfigRedis(rdsAddr, dbUserName, dbPassword, enableCluster, db)
 	return redisUtil
 }
 

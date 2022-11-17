@@ -6,6 +6,7 @@ import (
 	config2 "github.com/TestsLing/aj-captcha-go/config"
 	"github.com/TestsLing/aj-captcha-go/const"
 	"github.com/TestsLing/aj-captcha-go/service"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,12 +18,35 @@ type clientParams struct {
 	CaptchaType string `json:"captchaType"`
 }
 
-var config = config2.NewConfig()
+// **********************默认配置***************************************************
+// var config = config2.NewConfig()
+
+// *********************自定义配置**************************************************
+// 水印配置（参数可从业务系统自定义）
+var watermarkConfig = &config2.WatermarkConfig{
+	FontSize: 12,
+	Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+	Text:     "我的水印",
+}
+
+// 点击文字配置（参数可从业务系统自定义）
+var clickWordConfig = &config2.ClickWordConfig{
+	FontSize: 25,
+	FontNum:  4,
+}
+
+// 滑动模块配置（参数可从业务系统自定义）
+var blockPuzzleConfig = &config2.BlockPuzzleConfig{Offset: 10}
+
+// 行为校验配置模块（具体参数可从业务系统配置文件自定义）
+var config = config2.BuildConfig(constant.MemCacheKey, constant.DefaultResourceRoot, watermarkConfig,
+	clickWordConfig, blockPuzzleConfig, 2*60)
+
+// 行为校验初始化
 var factory = service.NewCaptchaServiceFactory(config)
 
 func cors(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		w.Header().Set("Access-Control-Allow-Origin", "*")                                                                      // 可将将 * 替换为指定的域名
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization,x-requested-with") //你想放行的header也可以在后面自行添加
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")                                                    //我自己只使用 get post 所以只放行它
@@ -63,11 +87,9 @@ func getCaptcha(writer http.ResponseWriter, request *http.Request) {
 func main() {
 	//注册内存缓存
 	//factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
-	//注册使用默认redis数据库
-	factory.RegisterCache(constant.RedisCacheKey, service.NewDftRedisCacheService())
 	//注册自定义配置redis数据库
 	factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService([]string{"127.0.0.1:6379"},
-		"", false, 0))
+		"", "", false, 0))
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 
