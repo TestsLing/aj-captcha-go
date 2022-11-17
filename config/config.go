@@ -33,7 +33,9 @@ type RedisConfig struct {
 	//最大连接数
 	DBMaxActive int `yaml:"dbMaxActive"`
 	//redis表示空闲连接保活时间
-	DBIdleTimeout int `yaml:"DBIdleTimeout"`
+	DBIdleTimeout int `yaml:"dbIdleTimeout"`
+	//redis用户
+	DBUserName string `yaml:"dbUserName"`
 	//redis密码
 	DBPassWord string `yaml:"dbPassWord"`
 	//是否使用redis集群

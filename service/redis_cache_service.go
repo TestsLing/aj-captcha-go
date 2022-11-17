@@ -11,7 +11,7 @@ type RedisCacheService struct {
 
 // NewConfigRedisCacheService 初始化自定义redis配置
 func NewConfigRedisCacheService(rdsAddr []string, dbUserName, dbPassword string, enableCluster bool, db int) CaptchaCacheInterface {
-	redisUtils := util.NewConfigRedisUtil(rdsAddr, dbPassword, enableCluster, db)
+	redisUtils := util.NewConfigRedisUtil(rdsAddr, dbUserName, dbPassword, enableCluster, db)
 	return &RedisCacheService{Cache: redisUtils}
 }
 
