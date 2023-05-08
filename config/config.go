@@ -17,6 +17,8 @@ type WatermarkConfig struct {
 type BlockPuzzleConfig struct {
 	// 校验时 容错偏移量
 	Offset int `yaml:"offset"`
+	// 是否插入干扰图
+	IsInterference bool `yaml:"isInterference"`
 }
 
 type ClickWordConfig struct {
