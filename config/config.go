@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"github.com/TestsLing/aj-captcha-go/const"
+	"github.com/xierui921326/aj-captcha-go/const"
 	"image/color"
 	"strings"
 )
