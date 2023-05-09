@@ -1,6 +1,6 @@
-module github.com/TestsLing/aj-captcha-go
+module github.com/xierui921326/aj-captcha-go
 
-go 1.12
+go 1.19
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
