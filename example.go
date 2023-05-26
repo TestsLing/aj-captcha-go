@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	config2 "github.com/TestsLing/aj-captcha-go/config"
-	"github.com/TestsLing/aj-captcha-go/const"
-	"github.com/TestsLing/aj-captcha-go/service"
+	config2 "github.com/xierui921326/aj-captcha-go/config"
+	"github.com/xierui921326/aj-captcha-go/const"
+	"github.com/xierui921326/aj-captcha-go/service"
 	"image/color"
 	"io/ioutil"
 	"log"

@@ -1,8 +1,8 @@
 package image
 
 import (
-	"github.com/TestsLing/aj-captcha-go/const"
-	"github.com/TestsLing/aj-captcha-go/util"
+	"github.com/xierui921326/aj-captcha-go/const"
+	"github.com/xierui921326/aj-captcha-go/util"
 	"log"
 	"os"
 	"path/filepath"

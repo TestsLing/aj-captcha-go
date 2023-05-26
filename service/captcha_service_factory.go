@@ -1,7 +1,7 @@
 package service
 
 import (
-	configIns "github.com/TestsLing/aj-captcha-go/config"
+	configIns "github.com/xierui921326/aj-captcha-go/config"
 	"log"
 	"sync"
 )

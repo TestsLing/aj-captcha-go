@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/TestsLing/aj-captcha-go/service"
+	"github.com/xierui921326/aj-captcha-go/service"
 	"testing"
 )
 

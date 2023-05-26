@@ -1,7 +1,7 @@
 package test
 
 import (
-	i "github.com/TestsLing/aj-captcha-go/util/image"
+	i "github.com/xierui921326/aj-captcha-go/util/image"
 	"testing"
 )
 
