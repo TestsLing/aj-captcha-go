@@ -93,7 +93,7 @@ func (c *ClickWordCaptchaService) Check(token string, pointJson string) error {
 			return errors.New("验证失败")
 		}
 	}
-
+	c.setEncryptCache(token, pointJson, cachePoint[0].SecretKey)
 	return nil
 }
 
@@ -178,4 +178,41 @@ func (c *ClickWordCaptchaService) randomWordPoint(width int, height int, i int, 
 	}
 	y = util.RandomInt(c.factory.config.ClickWord.FontSize, height-fontSizeHalf)
 	return vo.PointVO{X: x, Y: y}
+}
+
+func (c *ClickWordCaptchaService) setEncryptCache(token string, pointJson string, secretKey string) {
+	pointStr := Decrypt(pointJson, secretKey)
+	key := Encrypt(token+"---"+pointStr, secretKey)
+	data := map[string]interface{}{
+		"token":     token,
+		"pointJson": pointJson,
+	}
+	// 转为json
+	jsonData, _ := json.Marshal(data)
+	// 将 key 存入缓存
+	c.factory.GetCache().Set(key, string(jsonData), c.factory.config.CacheExpireSec)
+}
+
+func (c *ClickWordCaptchaService) VerificationByEncryptCode(encryptCode string) {
+	cacheEntity := c.factory.GetCache() // 获取缓存实例
+	data := make(map[string]interface{})
+	result := cacheEntity.Get(encryptCode)
+	// 字符串json转为map
+	err := json.Unmarshal([]byte(result), &data)
+	if err != nil || len(data) == 0 {
+		log.Fatal("参数错误！")
+	}
+
+	token := data["token"].(string)
+	point := data["point"].(string)
+
+	defer func() {
+		cacheEntity.Delete(token)
+		cacheEntity.Delete(encryptCode)
+	}()
+
+	err = c.Check(token, point)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }

@@ -10,4 +10,7 @@ type CaptchaInterface interface {
 
 	// Verification 二次校验验证码(后端)
 	Verification(token string, pointJson string) error
+
+	// VerificationByEncryptCode 二次校验验证码(后端)
+	VerificationByEncryptCode(encryptCode string) error
 }

@@ -1,6 +1,10 @@
 package service
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -215,6 +219,7 @@ func (b *BlockPuzzleCaptchaService) Check(token string, pointJson string) error 
 
 	// 校验两个点是否符合
 	if math.Abs(float64(cachePoint.X-userPoint.X)) <= float64(b.factory.config.BlockPuzzle.Offset) && cachePoint.Y == userPoint.Y {
+		b.setEncryptCache(token, pointJson, cachePoint.SecretKey)
 		return nil
 	}
 
@@ -228,5 +233,86 @@ func (b *BlockPuzzleCaptchaService) Verification(token string, pointJson string)
 	}
 	codeKey := fmt.Sprintf(constant.CodeKeyPrefix, token)
 	b.factory.GetCache().Delete(codeKey)
+	return nil
+}
+
+func (b *BlockPuzzleCaptchaService) setEncryptCache(token string, pointJson string, secretKey string) {
+	pointStr := Decrypt(pointJson, secretKey)
+	key := Encrypt(token+"---"+pointStr, secretKey)
+	data := map[string]interface{}{
+		"token":     token,
+		"pointJson": pointJson,
+	}
+	// 转为json
+	jsonData, _ := json.Marshal(data)
+	// 将 key 存入缓存
+	b.factory.GetCache().Set(key, string(jsonData), b.factory.config.CacheExpireSec)
+}
+
+func Encrypt(str string, secretKey string) string {
+	key := []byte(secretKey)
+	plaintext := []byte(str)
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := rand.Read(iv); err != nil {
+		log.Fatal(err)
+	}
+
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+
+	return base64.StdEncoding.EncodeToString(ciphertext)
+}
+
+func Decrypt(str string, secretKey string) string {
+	key := []byte(secretKey)
+	ciphertext, _ := base64.StdEncoding.DecodeString(str)
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(ciphertext) < aes.BlockSize {
+		log.Fatal("Ciphertext too short")
+	}
+
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+	mode.CryptBlocks(ciphertext, ciphertext)
+
+	return string(ciphertext)
+}
+
+func (b *BlockPuzzleCaptchaService) VerificationByEncryptCode(encryptCode string) error {
+	cacheEntity := b.factory.GetCache() // 获取缓存实例
+	data := make(map[string]interface{})
+	result := cacheEntity.Get(encryptCode)
+	// 字符串json转为map
+	err := json.Unmarshal([]byte(result), &data)
+	if err != nil || len(data) == 0 {
+		return err
+	}
+
+	token := data["token"].(string)
+	point := data["point"].(string)
+
+	defer func() {
+		cacheEntity.Delete(token)
+		cacheEntity.Delete(encryptCode)
+	}()
+
+	err = b.Check(token, point)
+	if err != nil {
+		return err
+	}
 	return nil
 }
