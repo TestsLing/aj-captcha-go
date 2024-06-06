@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	constant "github.com/TestsLing/aj-captcha-go/const"
-	"github.com/TestsLing/aj-captcha-go/model/vo"
-	"github.com/TestsLing/aj-captcha-go/util"
-	img "github.com/TestsLing/aj-captcha-go/util/image"
+	constant "github.com/xierui921326/aj-captcha-go/const"
+	"github.com/xierui921326/aj-captcha-go/model/vo"
+	"github.com/xierui921326/aj-captcha-go/util"
+	img "github.com/xierui921326/aj-captcha-go/util/image"
 	"golang.org/x/image/colornames"
 	"log"
 	"math"
@@ -40,7 +40,7 @@ func (b *BlockPuzzleCaptchaService) Get() (map[string]interface{}, error) {
 	templateImage := img.GetTemplateImage()
 
 	// 构造前端所需图片
-	b.pictureTemplatesCut(backgroundImage, templateImage)
+	b.pictureTemplatesCut(backgroundImage, templateImage, b.factory.config.BlockPuzzle.IsInterference)
 
 	originalImageBase64, err := backgroundImage.Base64()
 	jigsawImageBase64, err := templateImage.Base64()
@@ -67,20 +67,22 @@ func (b *BlockPuzzleCaptchaService) Get() (map[string]interface{}, error) {
 	return data, nil
 }
 
-func (b *BlockPuzzleCaptchaService) pictureTemplatesCut(backgroundImage *util.ImageUtil, templateImage *util.ImageUtil) {
+func (b *BlockPuzzleCaptchaService) pictureTemplatesCut(backgroundImage *util.ImageUtil, templateImage *util.ImageUtil, isInterference bool) {
 	// 生成拼图坐标点
 	b.generateJigsawPoint(backgroundImage, templateImage)
 	// 裁剪模板图
 	b.cutByTemplate(backgroundImage, templateImage, b.point.X, 0)
 
-	// 插入干扰图
-	for {
-		newTemplateImage := img.GetTemplateImage()
-		if newTemplateImage.Src != templateImage.Src {
-			offsetX := util.RandomInt(0, backgroundImage.Width-newTemplateImage.Width-5)
-			if math.Abs(float64(newTemplateImage.Width-offsetX)) > float64(newTemplateImage.Width/2) {
-				b.interferenceByTemplate(backgroundImage, newTemplateImage, offsetX, b.point.Y)
-				break
+	if isInterference {
+		// 插入干扰图
+		for {
+			newTemplateImage := img.GetTemplateImage()
+			if newTemplateImage.Src != templateImage.Src {
+				offsetX := util.RandomInt(0, backgroundImage.Width-newTemplateImage.Width-5)
+				if math.Abs(float64(newTemplateImage.Width-offsetX)) > float64(newTemplateImage.Width/2) {
+					b.interferenceByTemplate(backgroundImage, newTemplateImage, offsetX, b.point.Y)
+					break
+				}
 			}
 		}
 	}
